@@ -1,0 +1,10 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: job-sh
+  namespace: test2
+data:
+  job.sh: >-
+    for i in $(cat /etc/infra/infra-ns); do oc label namespace $i
+    owner=infra-ops --overwrite; done
+

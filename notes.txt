@@ -1,0 +1,6 @@
+get names of all namespaces with the label owner and save to a file
+oc get namespace --selector="owner" -o template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' > ns-owned
+
+get names of all namespaces and save to file
+oc get namespace -o template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' > ns-all
+

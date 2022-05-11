@@ -1,0 +1,53 @@
+kind: CronJob
+apiVersion: batch/v1beta1
+metadata:
+  name: namespace-labeller
+  namespace: test2
+spec:
+  schedule: '@hourly'
+  concurrencyPolicy: Allow
+  suspend: false
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          restartPolicy: Never
+          serviceAccountName: cron-runner
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          securityContext: {}
+          containers:
+            - name: oc-cli
+              image: registry.redhat.io/openshift4/ose-cli
+              command:
+                - /bin/sh
+                - /etc/jobs/job.sh
+              resources: {}
+              volumeMounts:
+                - name: job-sh
+                  mountPath: /etc/jobs
+                - name: infra-ns
+                  mountPath: /etc/infra
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              imagePullPolicy: Always
+          serviceAccount: cron-runner
+          volumes:
+            - name: job-sh
+              configMap:
+                name: job-sh
+                defaultMode: 420
+            - name: infra-ns
+              configMap:
+                name: infra-ns
+                defaultMode: 420
+          dnsPolicy: ClusterFirst
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+status:
+  lastScheduleTime: '2022-05-11T17:00:00Z'
+
