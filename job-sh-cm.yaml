@@ -6,17 +6,26 @@ metadata:
 data:
   job.sh: >-
     #!/bin/bash
-    
-    ls -ails /etc/ns-files
-
+  
     for file in /etc/ns-files/*; do
       for i in $(cat /etc/ns-files/${file##*/}); do 
         oc label namespace $i owner=${file##*/} --overwrite; 
       done
     done 
 
-    oc get namespace --selector="owner" -o template --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}' > ~/tmp/ns-owned;  
+    oc get namespace --selector="owner" -o template --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}' > ~/tmp/ns-owned;   
     oc get namespace -o template --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}' > ~/tmp/ns-all; 
-    echo 'The following namespaces are unlabeled:';  
-    grep -Fxvf ~/tmp/ns-owned ~/tmp/ns-all;
+
+    grep -Fxvf ~/tmp/ns-owned ~/tmp/ns-all > ~/tmp/unlabeled;
+
+    if [ -s ~/tmp/unlabeled ]; then
+      echo 'The following namespaces are unlabeled:';  
+      cat ~/tmp/unlabeled;
+    fi
+    
+    cd ~/tmp;
+    oc create configmap system-created-unlabeled-ns --from-file=unlabeled --dry-run=client -o yaml > ~/tmp/configmap-gen.yaml; 
+    oc apply -f ~/tmp/configmap-gen.yaml;
+    oc patch deployment/httpd-unlabeled-ns --patch "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}";
+
 

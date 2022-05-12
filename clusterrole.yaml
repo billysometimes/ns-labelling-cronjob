@@ -8,7 +8,16 @@ rules:
   - ''
   resources:
   - namespaces
+  - configmaps
   verbs:
   - 'list'
+  - 'get'
+  - 'patch'
+  - 'create'
+- apiGroups:
+  - 'apps'
+  resources:
+  - deployments
+  verbs:
   - 'get'
   - 'patch'
