@@ -4,7 +4,7 @@ metadata:
   name: infra-ns
   namespace: test2
 data:
-  infra-ns: |-
+  infra-ops: |-
     openshift-apiserver
     openshift-apiserver-operator
     openshift-authentication

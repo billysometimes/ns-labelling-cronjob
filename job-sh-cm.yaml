@@ -5,6 +5,18 @@ metadata:
   namespace: test2
 data:
   job.sh: >-
-    for i in $(cat /etc/infra/infra-ns); do oc label namespace $i
-    owner=infra-ops --overwrite; done
+    #!/bin/bash
+    
+    ls -ails /etc/ns-files
+
+    for file in /etc/ns-files/*; do
+      for i in $(cat /etc/ns-files/${file##*/}); do 
+        oc label namespace $i owner=${file##*/} --overwrite; 
+      done
+    done 
+
+    oc get namespace --selector="owner" -o template --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}' > ~/tmp/ns-owned;  
+    oc get namespace -o template --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}' > ~/tmp/ns-all; 
+    echo 'The following namespaces are unlabeled:';  
+    grep -Fxvf ~/tmp/ns-owned ~/tmp/ns-all;
 
