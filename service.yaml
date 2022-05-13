@@ -2,7 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: httpd-unlabeled-ns
-  namespace: test2
+  namespace: namespace-labeler
 spec:
   ports:
     - name: 8080-tcp
