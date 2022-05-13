@@ -3,7 +3,7 @@ var fs = require('fs');
 var app = express();
 
 // Set the Server Port
-var PORT  = process.env.PORT || 8080
+var PORT  = process.env.PORT || 3001
 
 var server = app.listen(PORT, function() {
   var host = server.address().address;
