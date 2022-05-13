@@ -17,15 +17,14 @@ data:
     oc get namespace -o template --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}' > ~/tmp/ns-all; 
 
     grep -Fxvf ~/tmp/ns-owned ~/tmp/ns-all > ~/tmp/unlabeled;
-
+    echo "{\"count\": $(wc -l < ~/tmp/unlabeled), \"namespaces\": [$(awk '{print"\""$1"\""}' ~/tmp/unlabeled | paste -s -d, -)]}" > ~/tmp/unlabeled.json;
+    
     if [ -s ~/tmp/unlabeled ]; then
       echo 'The following namespaces are unlabeled:';  
       cat ~/tmp/unlabeled;
     fi
     
     cd ~/tmp;
-    oc create configmap system-created-unlabeled-ns --from-file=unlabeled --dry-run=client -o yaml > ~/tmp/configmap-gen.yaml; 
+    oc create configmap system-created-unlabeled-ns --from-file=unlabeled.json --dry-run=client -o yaml > ~/tmp/configmap-gen.yaml; 
     oc apply -f ~/tmp/configmap-gen.yaml;
     oc patch deployment/httpd-unlabeled-ns --patch "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}";
-
-
